@@ -6,7 +6,7 @@ Gives BMI, BMR of most popular equations, TDEE & caloric target based on percent
 $ .\main --help
 usage: TDEE --measurement,=MEASUREMENT, --weight=WEIGHT --height=HEIGHT --gender=GENDER --age=AGE --activity-level=ACTIVITY-LEVEL [<flags>]
 
-A Golang Total Daily Energy Expenditure (TDEE) CLI Calculator.This program uses
+A Golang Total Daily Energy Expenditure (TDEE) CLI Calculator. This program uses
 the Mifflin-St Jeor Equation to calculate TDEE as it's considered to be more
 accurate, see https://www.ncbi.nlm.nih.gov/pubmed/15883556.
 
