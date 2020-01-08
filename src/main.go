@@ -97,7 +97,7 @@ func (p Person) calcMifflinStJeor(wKG float64, hM float64, gender string, age ui
 }
 
 func (p Person) calcTDEE(a float64) (tdee float64) {
-	tdee = math.Round(((p.mifflinStJeor * a) * 10) / 10)
+	tdee = (p.mifflinStJeor * a)
 	return
 }
 
