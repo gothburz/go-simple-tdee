@@ -28,17 +28,17 @@ var (
 	debug = app.Flag("debug", "Enable debug mode.").Bool()
 
 	// TDEE
-	mFlag        = app.Flag("measurement,", "Measurement, use 'metric' or 'imperial'.").Short('m').Required().String()
+	unitFlag     = app.Flag("unit,", "unit, use 'metric' or 'imperial'.").Short('u').Required().String()
 	weightFlag   = app.Flag("weight", "Your weight.").Short('w').Required().Float64()
 	heightFlag   = app.Flag("height", "Your height in meters or inches. ").Short('h').Required().Float64()
 	genderFlag   = app.Flag("gender", "Your gender.").Short('g').Required().String()
 	ageFlag      = app.Flag("age", "Your age.").Short('a').Required().Uint8()
 	activityFlag = app.Flag("activity-level", "Choose one of:"+
-		"\n\nS for Sedentary (little or no exercise, desk job)"+
-		"\n\nLA for Lightly Active (light exercise/activity 1-3 days/week)"+
-		"\n\nMA for Moderately Active (moderate exercise/activity 6-7 days/week)"+
-		"\n\nVA for Very Active (2-3 hours of hard exercise every day)"+
-		"\n\nEA for Extremely Active (hard exercise 2 or more times per day, or training for marathon, or triathlon, etc.)").Required().Float64()
+		"\n\n1.2 for Sedentary (little or no exercise, desk job)"+
+		"\n\n1.375 for Lightly Active (light exercise/activity 1-3 days/week)"+
+		"\n\n1.55 for Moderately Active (moderate exercise/activity 6-7 days/week)"+
+		"\n\n1.725 for Very Active (2-3 hours of hard exercise every day)"+
+		"\n\n1.9 for Extremely Active (hard exercise 2 or more times per day, or training for marathon, or triathlon, etc.)").Required().Float64()
 	subtractFlag = app.Flag("subtract", "Subtract this percentage of TDEE and give a new caloric intake. Useful for cutting.").Float64()
 	addFlag      = app.Flag("add", "Add this percentage of TDEE and give a new caloric intake. Useful when bulking.").Float64()
 )
@@ -97,7 +97,7 @@ func (p Person) calcMifflinStJeor(wKG float64, hM float64, gender string, age ui
 }
 
 func (p Person) calcTDEE(a float64) (tdee float64) {
-	tdee = (p.mifflinStJeor * a)
+	tdee = math.Round(((p.mifflinStJeor * a) * 10) / 10)
 	return
 }
 
@@ -118,7 +118,7 @@ func main() {
 	p := Person{}
 	p.age = *ageFlag
 	p.gender = *genderFlag
-	if *mFlag != "metric" {
+	if *unitFlag != "metric" {
 		p.weightKG = *weightFlag / 2.205
 		p.heightM = *heightFlag / 39.37
 		p.bmi = p.calcBMI(p.weightKG, p.heightM)
@@ -126,31 +126,31 @@ func main() {
 
 		// PRINT ORIGINAL HARRIS BENEDICT EQUATION
 		p.originalHarrisBenedict = p.calcOHarrisBenedict(p.weightKG, p.heightM, p.gender, p.age)
-		fmt.Println("Original Harris-Benedict BMR:", p.originalHarrisBenedict, "calories")
+		fmt.Println("Original Harris-Benedict BMR:", p.originalHarrisBenedict, "cals")
 
 		// PRINT REVISED HARRIS BENEDICT EQUATION
 		p.revisedHarrisBenedict = p.calcRHarrisBenedict(p.weightKG, p.heightM, p.gender, p.age)
-		fmt.Println("Revised Harris-Benedict BMR:", p.revisedHarrisBenedict, "calories")
+		fmt.Println("Revised Harris-Benedict BMR:", p.revisedHarrisBenedict, "cals")
 
 		// PRINT MIFFLIN-ST. JEOR EQUATION
 		p.mifflinStJeor = p.calcMifflinStJeor(p.weightKG, p.heightM, p.gender, p.age)
-		fmt.Println("Mifflin-St Jeor BMR:", p.mifflinStJeor, "calories")
+		fmt.Println("Mifflin-St Jeor BMR:", p.mifflinStJeor, "cals")
 
 		// PRINT TDEE
 		p.tdee = p.calcTDEE(*activityFlag)
-		fmt.Println("Your Total Daily Energy Expenditure (TDEE):", p.tdee, "calories")
+		fmt.Println("Your Total Daily Energy Expenditure (TDEE):", p.tdee, "cals")
 
 		// SUBTRACT PERCENT FROM TDEE IF SUBTRACT FLAG IS PASSED
 		if *subtractFlag != 0 && (*addFlag == 0) {
 			calTar := p.subPFromTDEE(p.tdee, *subtractFlag)
-			fmt.Println("With", *subtractFlag, "% Caloric Reduction:", calTar)
+			fmt.Println("With", *subtractFlag, "% Caloric Reduction:", calTar, "cals")
 		}
 		if (*addFlag != 0) && (*subtractFlag == 0) {
 			calTar := p.addPFromTDEE(p.tdee, *addFlag)
-			fmt.Println("With", *addFlag, "% Caloric Surplus", calTar)
+			fmt.Println("With", *addFlag, "% Caloric Surplus", calTar, "cals")
 		}
 	}
-	if *mFlag == "metric" {
+	if *unitFlag == "metric" {
 		p.weightKG = *weightFlag
 		p.heightM = *heightFlag
 
@@ -160,28 +160,28 @@ func main() {
 
 		// PRINT ORIGINAL HARRIS BENEDICT EQUATION
 		p.originalHarrisBenedict = p.calcOHarrisBenedict(p.weightKG, p.heightM, p.gender, p.age)
-		fmt.Println("Original Harris-Benedict BMR:", p.originalHarrisBenedict, "calories")
+		fmt.Println("Original Harris-Benedict BMR:", p.originalHarrisBenedict, "cals")
 
 		// PRINT REVISED HARRIS BENEDICT EQUATION
 		p.revisedHarrisBenedict = p.calcRHarrisBenedict(p.weightKG, p.heightM, p.gender, p.age)
-		fmt.Println("Revised Harris-Benedict BMR:", p.revisedHarrisBenedict, "calories")
+		fmt.Println("Revised Harris-Benedict BMR:", p.revisedHarrisBenedict, "cals")
 
 		// PRINT MIFFLIN-ST. JEOR EQUATION
 		p.mifflinStJeor = p.calcMifflinStJeor(p.weightKG, p.heightM, p.gender, p.age)
-		fmt.Println("Mifflin-St Jeor BMR:", p.mifflinStJeor, "calories")
+		fmt.Println("Mifflin-St Jeor BMR:", p.mifflinStJeor, "cals")
 
 		// PRINT TDEE
 		p.tdee = p.calcTDEE(*activityFlag)
-		fmt.Println("Your Total Daily Energy Expenditure (TDEE):", p.tdee, "calories")
+		fmt.Println("Your Total Daily Energy Expenditure (TDEE):", p.tdee, "cals")
 
 		// SUBTRACT PERCENT FROM TDEE IF SUBTRACT FLAG IS PASSED
 		if *subtractFlag != 0 && (*addFlag == 0) {
 			calTar := p.subPFromTDEE(p.tdee, *subtractFlag)
-			fmt.Println("With", *subtractFlag, "% Caloric Reduction:", calTar)
+			fmt.Println("With", *subtractFlag, "% Caloric Reduction:", calTar, "cals")
 		}
 		if (*addFlag != 0) && (*subtractFlag == 0) {
 			calTar := p.addPFromTDEE(p.tdee, *addFlag)
-			fmt.Println("With", *addFlag, "% Caloric Surplus", calTar)
+			fmt.Println("With", *addFlag, "% Caloric Surplus", calTar, "cals")
 		}
 	}
 }
